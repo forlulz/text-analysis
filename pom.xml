@@ -14,9 +14,11 @@
     <maven.compiler.target>17</maven.compiler.target>
 
     <hamcrest.version>2.2</hamcrest.version>
+    <jackson.version>2.13.2.2</jackson.version>
     <junit.version>5.8.2</junit.version>
     <mockito.version>4.4.0</mockito.version>
     <textrazor.version>1.0.12</textrazor.version>
+    <wikidata-toolkit.version>0.13.1</wikidata-toolkit.version>
   </properties>
 
   <dependencyManagement>
@@ -36,6 +38,30 @@
       <groupId>com.textrazor</groupId>
       <artifactId>textrazor</artifactId>
       <version>${textrazor.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.wikidata.wdtk</groupId>
+      <artifactId>wdtk-wikibaseapi</artifactId>
+      <version>${wikidata-toolkit.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
@@ -84,6 +110,11 @@
           <version>3.0.0-M6</version>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.0.0-M6</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.2.2</version>
         </plugin>
@@ -105,5 +136,24 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*IT.java</include>
+          </includes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
