@@ -1,4 +1,4 @@
-package text.analysis;
+package text.analysis.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

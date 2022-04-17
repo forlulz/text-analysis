@@ -1,6 +1,7 @@
 package text.analysis.person;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -9,11 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
-public class WikiDataPersonInfoRepository {
+@Repository
+public class WikiDataPersonInfoRepository implements PersonInfoRepository {
   private int imageWidth = 50;
   private String defaultLanguage = Locale.ENGLISH.getLanguage();
 
@@ -21,13 +24,17 @@ public class WikiDataPersonInfoRepository {
     return WikibaseDataFetcher.getWikidataDataFetcher();
   }
 
+  @Override
   public Iterable<PersonInfo> find(String language, Set<Person> persons) {
-    var wikidataIds = persons.stream().map(Person::wikidataId).collect(Collectors.toList());
+    var wikidataIds = persons.stream() //
+        .map(Person::wikidataId) //
+        .filter(StringUtils::isNotBlank) //
+        .collect(Collectors.toList());
 
-    var personInfos = getItemDocuments(wikidataIds)
-        .entrySet()
-        .stream()
-        .map(e -> toPersonInfo(StringUtils.defaultIfBlank(language, defaultLanguage), e.getValue()))
+    var personInfos = getItemDocuments(wikidataIds) //
+        .entrySet() //
+        .stream() //
+        .map(e -> toPersonInfo(defaultIfBlank(language, defaultLanguage), e.getValue())) //
         .collect(Collectors.toList());
 
     return personInfos;
@@ -45,11 +52,11 @@ public class WikiDataPersonInfoRepository {
 
   private Map<String, ItemDocument> doGetItemDocuments(List<String> entityIds)
       throws MediaWikiApiErrorException, IOException {
-    return buildWikidataDataFetcher()
-        .getEntityDocuments(entityIds)
-        .entrySet()
-        .stream()
-        .filter(e -> e.getValue() instanceof ItemDocument)
+    return buildWikidataDataFetcher() //
+        .getEntityDocuments(entityIds) //
+        .entrySet() //
+        .stream() //
+        .filter(e -> e.getValue() instanceof ItemDocument) //
         .collect(Collectors.toMap(Map.Entry::getKey, v -> (ItemDocument) v.getValue()));
   }
 
@@ -57,7 +64,7 @@ public class WikiDataPersonInfoRepository {
     var label = itemDocument.findLabel(language);
     var description = itemDocument.findDescription(language);
     var image = itemDocument.findStatementStringValue("P18");
-    var imageUrl = buildImageUrl(image.getString());
+    var imageUrl = image == null ? null : buildImageUrl(image.getString());
 
     return new PersonInfo(label, description, imageUrl);
   }
@@ -68,8 +75,8 @@ public class WikiDataPersonInfoRepository {
   }
 
   private String encodeImageName(String imageName) {
-    return URLEncoder.encode(imageName.replace(" ", "_"), UTF_8)
-        .replace("%3A", ":")
+    return URLEncoder.encode(imageName.replace(" ", "_"), UTF_8) //
+        .replace("%3A", ":") //
         .replace("%2F", "/");
   }
 

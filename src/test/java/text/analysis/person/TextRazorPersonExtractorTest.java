@@ -1,4 +1,4 @@
-package text.analysis;
+package text.analysis.person;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -20,14 +20,13 @@ import com.textrazor.TextRazor;
 import com.textrazor.annotations.AnalyzedText;
 import com.textrazor.annotations.Entity;
 import com.textrazor.annotations.Response;
-import text.analysis.person.Person;
 
 @ExtendWith(MockitoExtension.class)
-class TextRazorExtractorTest {
+class TextRazorPersonExtractorTest {
   private static final String PERSON_NAME = "Alexander Afanasyev";
   private static final String PERSON_WIKIDATA_ID = "Q325004";
 
-  TextRazorExtractor sut;
+  TextRazorPersonExtractor sut;
 
   @Mock
   TextRazor mockTextRazor;
@@ -43,7 +42,7 @@ class TextRazorExtractorTest {
 
   @BeforeEach
   void setUpBeforeEach() throws Exception {
-    sut = new TextRazorExtractor(mockTextRazor);
+    sut = new TextRazorPersonExtractor(mockTextRazor);
   }
 
   @DisplayName("Given text, when extract persons, returns detected language two-letter code")
@@ -53,7 +52,7 @@ class TextRazorExtractorTest {
     when(mockAnalyzedteText.getResponse()).thenReturn(mockResponse);
     when(mockResponse.getLanguage()).thenReturn("eng");
 
-    var result = sut.extractPersons("any english text");
+    var result = sut.extract("any english text");
 
     assertThat(result.language(), is("en"));
     verify(mockResponse).getLanguage();
@@ -70,7 +69,7 @@ class TextRazorExtractorTest {
     when(mockResponse.getEntities()).thenReturn(List.of(mockEntity));
     var expectedPerson = new Person(PERSON_NAME, PERSON_WIKIDATA_ID);
 
-    var result = sut.extractPersons(PERSON_NAME);
+    var result = sut.extract(PERSON_NAME);
 
     assertThat(result.persons(), contains(expectedPerson));
   }
@@ -80,7 +79,7 @@ class TextRazorExtractorTest {
   void throwsRuntimeExceptionOnNetworkException() throws Exception {
     when(mockTextRazor.analyze(any())).thenThrow(NetworkException.class);
 
-    var ex = assertThrows(RuntimeException.class, () -> sut.extractPersons("text"));
+    var ex = assertThrows(RuntimeException.class, () -> sut.extract("text"));
     assertThat(ex.getMessage(), is("network error"));
   }
 
@@ -89,7 +88,7 @@ class TextRazorExtractorTest {
   void throwsRuntimeExceptionOnAnalysisException() throws Exception {
     when(mockTextRazor.analyze(any())).thenThrow(AnalysisException.class);
 
-    var ex = assertThrows(RuntimeException.class, () -> sut.extractPersons("text"));
+    var ex = assertThrows(RuntimeException.class, () -> sut.extract("text"));
     assertThat(ex.getMessage(), is("text analysis error"));
   }
 

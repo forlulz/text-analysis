@@ -1,23 +1,25 @@
-package text.analysis;
+package text.analysis.person;
 
 import static java.util.Collections.emptyList;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 import com.textrazor.AnalysisException;
 import com.textrazor.NetworkException;
 import com.textrazor.TextRazor;
 import com.textrazor.annotations.Entity;
-import text.analysis.person.Person;
-import text.analysis.person.PersonExtractionResult;
+import text.analysis.util.LocaleUtils;
 
-public class TextRazorExtractor {
+@Component
+public class TextRazorPersonExtractor implements PersonExtractor {
   private TextRazor textRazor;
 
-  public TextRazorExtractor(TextRazor textRazor) {
+  public TextRazorPersonExtractor(TextRazor textRazor) {
     this.textRazor = textRazor;
   }
 
-  public PersonExtractionResult extractPersons(String text) {
+  @Override
+  public PersonExtractionResult extract(String text) {
     try {
       return doExtractPersons(text);
     } catch (NetworkException e) {
@@ -41,7 +43,8 @@ public class TextRazorExtractor {
   }
 
   private static boolean isPerson(Entity entity) {
-    return entity.getType().contains("Person");
+    var types = entity.getType();
+    return types != null && types.contains("Person");
   }
 
 }

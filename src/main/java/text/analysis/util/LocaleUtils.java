@@ -1,4 +1,4 @@
-package text.analysis;
+package text.analysis.util;
 
 import java.util.Collections;
 import java.util.HashMap;
