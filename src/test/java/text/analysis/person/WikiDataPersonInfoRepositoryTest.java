@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +32,7 @@ class WikiDataPersonInfoRepositoryTest {
 
     var persons = Set.of(new Person("Chuck Norris", "Q2673"));
 
-    var ex = assertThrows(RuntimeException.class, () -> sut.find(Locale.ENGLISH, persons));
+    var ex = assertThrows(RuntimeException.class, () -> sut.find(null, persons));
     assertThat(ex.getMessage(), is("mediawiki api error"));
   }
 
@@ -44,7 +43,7 @@ class WikiDataPersonInfoRepositoryTest {
 
     var persons = Set.of(new Person("Chuck Norris", "Q2673"));
 
-    var ex = assertThrows(RuntimeException.class, () -> sut.find(Locale.ENGLISH, persons));
+    var ex = assertThrows(RuntimeException.class, () -> sut.find(null, persons));
     assertThat(ex.getMessage(), is("data fetch error"));
   }
 

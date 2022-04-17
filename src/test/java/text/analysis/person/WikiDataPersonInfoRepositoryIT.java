@@ -1,7 +1,8 @@
 package text.analysis.person;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import java.util.Locale;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -11,12 +12,11 @@ class WikiDataPersonInfoRepositoryIT {
 
   WikiDataPersonInfoRepository sut = new WikiDataPersonInfoRepository();
 
-  @DisplayName("Given russian locale and person, when find, returns infos in russian")
+  @DisplayName("Given russian language and person, when find, returns infos in russian")
   @Test
   void returnsPersonInfo_russian() {
-    var russian = new Locale.Builder().setLanguage("ru").build();
 
-    var infos = sut.find(russian, Set.of(new Person("Chuck Norris", "Q2673")));
+    var infos = sut.find("ru", Set.of(new Person("Chuck Norris", "Q2673")));
 
     assertThat(infos.iterator().hasNext(), is(true));
 
@@ -26,14 +26,12 @@ class WikiDataPersonInfoRepositoryIT {
     assertThat(info.imageUrl(), notNullValue());
   }
 
-  @DisplayName("Given locale without language and person, when find, uses default locale")
+  @DisplayName("Given no language and person, when find, uses default locale")
   @Test
   void returnsPersonInfo_default() {
-    sut.setDefaultLocale(Locale.ENGLISH);
-    var empty = new Locale.Builder().build();
-    assertThat(empty.getLanguage(), emptyString());
+    sut.setDefaultLanguage(Locale.ENGLISH.getLanguage());
 
-    var infos = sut.find(empty, Set.of(new Person("Chuck Norris", "Q2673")));
+    var infos = sut.find(null, Set.of(new Person("Chuck Norris", "Q2673")));
 
     assertThat(infos.iterator().hasNext(), is(true));
 

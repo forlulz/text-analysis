@@ -8,26 +8,26 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
 public class WikiDataPersonInfoRepository {
   private int imageWidth = 50;
-  private Locale defaultLocale = Locale.ENGLISH;
+  private String defaultLanguage = Locale.ENGLISH.getLanguage();
 
   protected WikibaseDataFetcher buildWikidataDataFetcher() {
     return WikibaseDataFetcher.getWikidataDataFetcher();
   }
 
-  public Iterable<PersonInfo> find(Locale locale, Set<Person> persons) {
+  public Iterable<PersonInfo> find(String language, Set<Person> persons) {
     var wikidataIds = persons.stream().map(Person::wikidataId).collect(Collectors.toList());
-    final var actualLocale = locale.getLanguage().isEmpty() ? defaultLocale : locale;
 
     var personInfos = getItemDocuments(wikidataIds)
         .entrySet()
         .stream()
-        .map(e -> toPersonInfo(actualLocale, e.getValue()))
+        .map(e -> toPersonInfo(StringUtils.defaultIfBlank(language, defaultLanguage), e.getValue()))
         .collect(Collectors.toList());
 
     return personInfos;
@@ -53,9 +53,9 @@ public class WikiDataPersonInfoRepository {
         .collect(Collectors.toMap(Map.Entry::getKey, v -> (ItemDocument) v.getValue()));
   }
 
-  private PersonInfo toPersonInfo(Locale locale, ItemDocument itemDocument) {
-    var label = itemDocument.findLabel(locale.getLanguage());
-    var description = itemDocument.findDescription(locale.getLanguage());
+  private PersonInfo toPersonInfo(String language, ItemDocument itemDocument) {
+    var label = itemDocument.findLabel(language);
+    var description = itemDocument.findDescription(language);
     var image = itemDocument.findStatementStringValue("P18");
     var imageUrl = buildImageUrl(image.getString());
 
@@ -77,8 +77,8 @@ public class WikiDataPersonInfoRepository {
     this.imageWidth = imageWidth;
   }
 
-  public void setDefaultLocale(Locale defaultLocale) {
-    this.defaultLocale = defaultLocale;
+  public void setDefaultLanguage(String defaultLanguage) {
+    this.defaultLanguage = defaultLanguage;
   }
 
 }
