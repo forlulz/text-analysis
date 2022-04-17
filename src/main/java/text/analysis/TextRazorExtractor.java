@@ -35,7 +35,9 @@ public class TextRazorExtractor {
         .filter(entity -> isPerson(entity)) //
         .map(entity -> new Person(entity.getEntityId(), entity.getWikidataId())) //
         .collect(Collectors.toSet());
-    return new PersonExtractionResult(response.getLanguage(), persons);
+    var languageCode = LocaleUtils.languageCodeFromIso3(response.getLanguage());
+
+    return new PersonExtractionResult(languageCode, persons);
   }
 
   private static boolean isPerson(Entity entity) {

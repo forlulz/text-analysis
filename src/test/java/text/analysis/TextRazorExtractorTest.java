@@ -46,7 +46,7 @@ class TextRazorExtractorTest {
     sut = new TextRazorExtractor(mockTextRazor);
   }
 
-  @DisplayName("Given text, when extract persons, returns detected language")
+  @DisplayName("Given text, when extract persons, returns detected language two-letter code")
   @Test
   void returnsDetectedLanguage() throws Exception {
     when(mockTextRazor.analyze(any())).thenReturn(mockAnalyzedteText);
@@ -55,7 +55,7 @@ class TextRazorExtractorTest {
 
     var result = sut.extractPersons("any english text");
 
-    assertThat(result.language(), is("eng"));
+    assertThat(result.language(), is("en"));
     verify(mockResponse).getLanguage();
   }
 
